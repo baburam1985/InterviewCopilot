@@ -1,3 +1,6 @@
+import type { AnswerSections } from "@/lib/answer-schema";
+import type { AnswerSource } from "@/lib/answer-generate";
+import type { ProfileStub } from "@/lib/profile-stub";
 import {
   initialSessionState,
   type SessionState,
@@ -8,18 +11,29 @@ import { randomUUID } from "node:crypto";
 export type SessionRecord = {
   id: string;
   userId: string;
+  profileStub: ProfileStub;
   state: SessionState;
   transcriptChunks: string[];
   processedIdempotencyKeys: Map<string, { atMs: number; seq: number }>;
+  lastQuestion?: string;
+  lastAnswer?: AnswerSections;
+  lastAnswerMeta?: {
+    source: AnswerSource;
+    warning?: { code: string; message: string };
+  };
 };
 
 const sessions = new Map<string, SessionRecord>();
 
-export function createSession(userId: string): SessionRecord {
+export function createSession(
+  userId: string,
+  profileStub: ProfileStub = {}
+): SessionRecord {
   const id = randomUUID();
   const rec: SessionRecord = {
     id,
     userId,
+    profileStub,
     state: initialSessionState(),
     transcriptChunks: [],
     processedIdempotencyKeys: new Map(),

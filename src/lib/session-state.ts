@@ -1,5 +1,5 @@
 /**
- * Goal 1.1 session pipeline state (GST-3 plan §4).
+ * Goal 1.1 session pipeline state.
  * Transitions are pure; pass `nowMs` in tests for fake clock / debounce.
  */
 
@@ -17,6 +17,8 @@ export type SessionEvent =
   | { type: "silence_threshold"; atMs: number }
   | { type: "dismiss_candidate" }
   | { type: "confirm_question" }
+  /** Paste / typed finalize path (bypasses ASR candidate loop for 1.1). */
+  | { type: "question_submitted" }
   | { type: "answer_delivered" }
   | { type: "end_session" };
 
@@ -64,6 +66,9 @@ export function transitionSession(
       }
       return state;
     case "listening":
+      if (event.type === "question_submitted") {
+        return bump({ phase: "answering", candidateGeneration: undefined });
+      }
       if (event.type === "speech_activity") {
         return bump({ phase: "buffering" });
       }
@@ -72,6 +77,9 @@ export function transitionSession(
       }
       return state;
     case "buffering":
+      if (event.type === "question_submitted") {
+        return bump({ phase: "answering", candidateGeneration: undefined });
+      }
       if (event.type === "pause_short") {
         return bump({ phase: "listening" });
       }
@@ -92,6 +100,9 @@ export function transitionSession(
       }
       return state;
     case "question_candidate":
+      if (event.type === "question_submitted") {
+        return bump({ phase: "answering", candidateGeneration: undefined });
+      }
       if (event.type === "dismiss_candidate") {
         return bump({ phase: "listening", candidateGeneration: undefined });
       }
@@ -118,6 +129,9 @@ export function transitionSession(
       }
       return state;
     case "answering":
+      if (event.type === "question_submitted") {
+        return bump({ phase: "answering", candidateGeneration: undefined });
+      }
       if (event.type === "answer_delivered") {
         return bump({ phase: "listening", candidateGeneration: undefined });
       }

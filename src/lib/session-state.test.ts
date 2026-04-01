@@ -48,4 +48,13 @@ describe("transitionSession", () => {
     s = transitionSession(s, { type: "dismiss_candidate" }, { nowMs: 510 });
     expect(s.phase).toBe("listening");
   });
+
+  it("paste path: question_submitted goes to answering then answer_delivered returns to listening", () => {
+    let s = initialSessionState();
+    s = transitionSession(s, { type: "start_session" }, { nowMs: 0 });
+    s = transitionSession(s, { type: "question_submitted" }, { nowMs: 1 });
+    expect(s.phase).toBe("answering");
+    s = transitionSession(s, { type: "answer_delivered" }, { nowMs: 2 });
+    expect(s.phase).toBe("listening");
+  });
 });

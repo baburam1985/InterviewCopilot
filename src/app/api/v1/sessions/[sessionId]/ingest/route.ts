@@ -6,7 +6,7 @@ type Body = {
 };
 
 /**
- * POST transcript chunk; Idempotency-Key header dedupes ingest (GST-3 §12.2).
+ * POST transcript chunk; Idempotency-Key header dedupes ingest (streaming path / future ASR).
  */
 export async function POST(
   req: Request,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Structured answer payload (GST-3 plan §3); validated server-side before UI.
+ * Structured answer payload (STAR-style sections); validated server-side before UI.
  */
 export const answerSectionsSchema = z.object({
   situation: z.string().min(1),
